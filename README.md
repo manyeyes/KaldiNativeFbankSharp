@@ -7,7 +7,7 @@ KNFWrapper是对kaldi-native-fbank的c-api接口的封装，通过dllexport方�
 KaldiNativeFbankSharp是对kaldi-native-fbank-dll的封装。
 
 ## 用途
-在c#的项目中引用KaldiNativeFbankSharp，可在包括但不限于ASR的项目中快速计算音频特征。
+在c#的项目中引用KaldiNativeFbankSharp，可在包括但不限于ASR的项目中快速计算音频fbank特征。
 
 ## 调用方法
 以下为示例代码，请根据项目需要配置参数：dither，snip_edges，sample_rate，num_bins ……
