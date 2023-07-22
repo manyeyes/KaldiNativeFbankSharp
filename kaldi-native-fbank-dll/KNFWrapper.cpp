@@ -62,7 +62,6 @@ namespace knf
 
 	void GetFbank(KnfOnlineFbank* knfOnlineFbank, int frame, FbankData* /*out*/ pData) {
 		int32_t n = knfOnlineFbank->impl->NumFramesReady();
-		//int32_t n = framesNum - last_frame_index_;
 		assert(n > 0 && "Please first call AcceptWaveform()");
 		n = 1;
 		int32_t discard_num = last_frame_num_;
