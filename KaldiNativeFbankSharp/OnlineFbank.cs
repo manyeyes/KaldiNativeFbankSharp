@@ -6,15 +6,16 @@ using System.Runtime.InteropServices;
 
 namespace KaldiNativeFbankSharp
 {
-    public class OnlineFbank: OnlineBase
-    {       
+    public class OnlineFbank : OnlineBase
+    {
         private float _sample_rate = 16000.0F;
         private int _num_bins = 80;
+        private int _last_frame_index = 0;
 
-        public OnlineFbank(float dither,bool snip_edges,float sample_rate,int num_bins)
+        public OnlineFbank(float dither, bool snip_edges, float sample_rate, int num_bins)
         {
-            _sample_rate=sample_rate;
-            _num_bins=num_bins;
+            _sample_rate = sample_rate;
+            _num_bins = num_bins;
             this._opts = KaldiNativeFbank.GetFbankOptions(
                  dither: dither,
                  snip_edges: snip_edges,
@@ -29,8 +30,9 @@ namespace KaldiNativeFbankSharp
             KaldiNativeFbank.AcceptWaveform(_knfOnlineFbank, _sample_rate, samples, samples.Length);
             KaldiNativeFbank.InputFinished(_knfOnlineFbank);
             int framesNum = KaldiNativeFbank.GetNumFramesReady(_knfOnlineFbank);
-            float[] fbanks = new float[framesNum * _num_bins];
-            for (int i = 0; i < framesNum; i++)
+            int n = framesNum - _last_frame_index;
+            float[] fbanks = new float[n * _num_bins];
+            for (int i = 0; i < n; i++)
             {
                 FbankData fbankData = new FbankData();
                 KaldiNativeFbank.GetFbank(_knfOnlineFbank, i, ref fbankData);
@@ -40,6 +42,7 @@ namespace KaldiNativeFbankSharp
                 fbankData.data = IntPtr.Zero;
                 _fbankData = null;
             }
+            _last_frame_index += n;
             samples = null;
             return fbanks;
         }
@@ -61,7 +64,7 @@ namespace KaldiNativeFbankSharp
         {
             if (!disposing)
             {
-                this._opts=IntPtr.Zero;
+                this._opts = IntPtr.Zero;
                 this._knfOnlineFbank.impl = IntPtr.Zero;
                 this._disposed = true;
                 base.Dispose();
