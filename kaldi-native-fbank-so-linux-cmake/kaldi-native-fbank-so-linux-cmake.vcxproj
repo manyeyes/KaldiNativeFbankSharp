@@ -21,7 +21,7 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{e7f8046e-400f-4ad8-8a40-80eec5622185}</ProjectGuid>
+    <ProjectGuid>{65B5D801-421F-469C-ABF2-B6A030A11409}</ProjectGuid>
     <RootNamespace>kaldinativefbankdll</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>

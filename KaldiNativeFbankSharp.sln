@@ -13,6 +13,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "kaldi-native-fbank-so-linux-cmake", "kaldi-native-fbank-so-linux-cmake\kaldi-native-fbank-so-linux-cmake.vcxproj", "{65B5D801-421F-469C-ABF2-B6A030A11409}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -47,6 +49,18 @@ Global
 		{E7F8046E-400F-4AD8-8A40-80EEC5622185}.Release|x64.Build.0 = Release|x64
 		{E7F8046E-400F-4AD8-8A40-80EEC5622185}.Release|x86.ActiveCfg = Release|Win32
 		{E7F8046E-400F-4AD8-8A40-80EEC5622185}.Release|x86.Build.0 = Release|Win32
+		{65B5D801-421F-469C-ABF2-B6A030A11409}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{65B5D801-421F-469C-ABF2-B6A030A11409}.Debug|Any CPU.Build.0 = Debug|x64
+		{65B5D801-421F-469C-ABF2-B6A030A11409}.Debug|x64.ActiveCfg = Debug|x64
+		{65B5D801-421F-469C-ABF2-B6A030A11409}.Debug|x64.Build.0 = Debug|x64
+		{65B5D801-421F-469C-ABF2-B6A030A11409}.Debug|x86.ActiveCfg = Debug|Win32
+		{65B5D801-421F-469C-ABF2-B6A030A11409}.Debug|x86.Build.0 = Debug|Win32
+		{65B5D801-421F-469C-ABF2-B6A030A11409}.Release|Any CPU.ActiveCfg = Release|x64
+		{65B5D801-421F-469C-ABF2-B6A030A11409}.Release|Any CPU.Build.0 = Release|x64
+		{65B5D801-421F-469C-ABF2-B6A030A11409}.Release|x64.ActiveCfg = Release|x64
+		{65B5D801-421F-469C-ABF2-B6A030A11409}.Release|x64.Build.0 = Release|x64
+		{65B5D801-421F-469C-ABF2-B6A030A11409}.Release|x86.ActiveCfg = Release|Win32
+		{65B5D801-421F-469C-ABF2-B6A030A11409}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
