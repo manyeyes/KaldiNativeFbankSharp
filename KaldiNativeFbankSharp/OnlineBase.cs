@@ -14,14 +14,14 @@ namespace KaldiNativeFbankSharp
         {
             if (!disposing)
             {
-                if(_opts != IntPtr.Zero)
+                if (_opts != IntPtr.Zero)
                 {
                     _opts = IntPtr.Zero;
                 }
                 if (_knfOnlineFbank.impl != IntPtr.Zero)
                 {
                     _knfOnlineFbank.impl = IntPtr.Zero;
-                }     
+                }
                 this._disposed = true;
             }
         }
