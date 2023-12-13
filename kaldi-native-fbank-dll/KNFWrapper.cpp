@@ -10,8 +10,8 @@
 
 namespace knf
 {
-	int32_t last_frame_index_ = 0;
-	int32_t last_frame_num_ = 0;
+	/*int32_t last_frame_index_ = 0;
+	int32_t last_frame_num_ = 0;*/
 	std::mutex mutex_;
 
 	struct KnfOnlineFbank {
@@ -37,8 +37,8 @@ namespace knf
 	{
 		KnfOnlineFbank* knfOnlineFbank = new KnfOnlineFbank;
 		knfOnlineFbank->impl = new OnlineFbank(*opts);
-		last_frame_index_ = 0;
-		last_frame_num_ = 0;
+		/*last_frame_index_ = 0;
+		last_frame_num_ = 0;*/
 		return knfOnlineFbank;
 	}
 
@@ -60,27 +60,42 @@ namespace knf
 		return n;
 	}
 
-	void GetFbank(KnfOnlineFbank* knfOnlineFbank, int frame, FbankData* /*out*/ pData) {
+	void GetFbank(KnfOnlineFbank* knfOnlineFbank, int currFrameIndex, FbankData* /*out*/ pData) {
+		std::lock_guard<std::mutex> lock(mutex_);
 		int32_t n = knfOnlineFbank->impl->NumFramesReady();
 		assert(n > 0 && "Please first call AcceptWaveform()");
-		n = 1;
-		int32_t discard_num = last_frame_num_;
+		//dis frame num, first is 0,second's next is 1
+		int32_t discard_num = currFrameIndex == 0 ? 0 : 1;
 		int32_t feature_dim = knfOnlineFbank->impl->Dim();
-		knfOnlineFbank->impl->Pop(discard_num);
-
-		int32_t i = frame == last_frame_index_ ? frame : last_frame_index_;
-		const float* f = knfOnlineFbank->impl->GetFrame(i);
+		//get frame at frame
+		const float* f = knfOnlineFbank->impl->GetFrame(currFrameIndex);
 		pData->data_length = feature_dim;
 		pData->data = f;
-
-		last_frame_index_ = last_frame_index_ + n;
-		last_frame_num_ = 1;
+		//pop the used frame
+		knfOnlineFbank->impl->Pop(discard_num);
 	}
 
-	void GetFbanks(KnfOnlineFbank* knfOnlineFbank, int framesNum, FbankDatas* /*out*/ pData) {
+	//void GetFbank(KnfOnlineFbank* knfOnlineFbank, int frame, FbankData* /*out*/ pData) {
+	//	int32_t n = knfOnlineFbank->impl->NumFramesReady();
+	//	assert(n > 0 && "Please first call AcceptWaveform()");
+	//	n = 1;
+	//	int32_t discard_num = last_frame_num_;
+	//	int32_t feature_dim = knfOnlineFbank->impl->Dim();
+	//	knfOnlineFbank->impl->Pop(discard_num);
+
+	//	int32_t i = frame == last_frame_index_ ? frame : last_frame_index_;
+	//	const float* f = knfOnlineFbank->impl->GetFrame(i);
+	//	pData->data_length = feature_dim;
+	//	pData->data = f;
+
+	//	last_frame_index_ = last_frame_index_ + n;
+	//	last_frame_num_ = 1;
+	//}
+
+	void GetFbanks(KnfOnlineFbank* knfOnlineFbank, int lastFrameIndex, FbankDatas* /*out*/ pData) {
 		int32_t n = knfOnlineFbank->impl->NumFramesReady();
 		assert(n > 0 && "Please first call AcceptWaveform()");
-		std::vector<float> features = GetFrames(knfOnlineFbank, framesNum);
+		std::vector<float> features = GetFrames(knfOnlineFbank, lastFrameIndex);
 		pData->data = new float[features.size()];
 		pData->data_length = features.size();
 		for (int32_t i = 0; i != features.size(); ++i) {
@@ -88,23 +103,57 @@ namespace knf
 		}
 	}
 
-	std::vector<float> GetFrames(KnfOnlineFbank* knfOnlineFbank, int framesNum) {
+	std::vector<float> GetFrames(KnfOnlineFbank* knfOnlineFbank, int lastFrameIndex) {
 		std::lock_guard<std::mutex> lock(mutex_);
-		int32_t n = framesNum - last_frame_index_;
-		assert(n > 0 && "Please first call AcceptWaveform()");
-		int32_t discard_num = last_frame_num_;
-		int32_t feature_dim = knfOnlineFbank->impl->Dim();
-		knfOnlineFbank->impl->Pop(discard_num);
-		std::vector<float> features(n * feature_dim);
+		int32_t n = knfOnlineFbank->impl->NumFramesReady();
+		assert(n - lastFrameIndex >= 0 && "Please first call AcceptWaveform()");		
+		/*int32_t n = framesNum - last_frame_index_;
+		assert(n > 0 && "Please first call AcceptWaveform()");*/
+		int32_t framesNum = lastFrameIndex == 0 ? n : n - (lastFrameIndex + 1);
+		int32_t discard_num = lastFrameIndex == 0 ? n : n-(lastFrameIndex + 1);
+		int32_t feature_dim = knfOnlineFbank->impl->Dim();		
+		std::vector<float> features(framesNum * feature_dim);
 		float* p = features.data();
-		for (int32_t i = 0; i != n; ++i) {
-			const float* f = knfOnlineFbank->impl->GetFrame(i+ last_frame_index_);
+		int32_t currFrameIndex = lastFrameIndex == 0 ? 0 : lastFrameIndex + 1;
+		for (int32_t i = currFrameIndex; i != n; ++i) {
+			const float* f = knfOnlineFbank->impl->GetFrame(i);
 			std::copy(f, f + feature_dim, p);
 			p += feature_dim;
 		}
-		last_frame_index_ = last_frame_index_+ n;
-		last_frame_num_ = n;
+		knfOnlineFbank->impl->Pop(discard_num);
+		/*last_frame_index_ = last_frame_index_ + n;
+		last_frame_num_ = n;*/
 		return features;
 	}
+
+	//void GetFbanks(KnfOnlineFbank* knfOnlineFbank, int framesNum, FbankDatas* /*out*/ pData) {
+	//	int32_t n = knfOnlineFbank->impl->NumFramesReady();
+	//	assert(n > 0 && "Please first call AcceptWaveform()");
+	//	std::vector<float> features = GetFrames(knfOnlineFbank, framesNum);
+	//	pData->data = new float[features.size()];
+	//	pData->data_length = features.size();
+	//	for (int32_t i = 0; i != features.size(); ++i) {
+	//		pData->data[i] = features[i];
+	//	}
+	//}
+
+	//std::vector<float> GetFrames(KnfOnlineFbank* knfOnlineFbank, int framesNum) {
+	//	std::lock_guard<std::mutex> lock(mutex_);
+	//	int32_t n = framesNum - last_frame_index_;
+	//	assert(n > 0 && "Please first call AcceptWaveform()");
+	//	int32_t discard_num = last_frame_num_;
+	//	int32_t feature_dim = knfOnlineFbank->impl->Dim();
+	//	knfOnlineFbank->impl->Pop(discard_num);
+	//	std::vector<float> features(n * feature_dim);
+	//	float* p = features.data();
+	//	for (int32_t i = 0; i != n; ++i) {
+	//		const float* f = knfOnlineFbank->impl->GetFrame(i + last_frame_index_);
+	//		std::copy(f, f + feature_dim, p);
+	//		p += feature_dim;
+	//	}
+	//	last_frame_index_ = last_frame_index_ + n;
+	//	last_frame_num_ = n;
+	//	return features;
+	//}
 
 }
