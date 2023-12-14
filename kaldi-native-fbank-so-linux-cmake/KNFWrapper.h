@@ -48,9 +48,9 @@ extern "C" {
 		LIBRARY_API void AcceptWaveform(KnfOnlineFbank* knfOnlineFbank, float sample_rate, float* samples, int samples_size);
 		LIBRARY_API void InputFinished(KnfOnlineFbank* knfOnlineFbank);
 		LIBRARY_API int32_t GetNumFramesReady(KnfOnlineFbank* knfOnlineFbank);
-		LIBRARY_API void GetFbank(KnfOnlineFbank* knfOnlineFbank, int frame, FbankData* /*out*/ pData);
-		LIBRARY_API void GetFbanks(KnfOnlineFbank* knfOnlineFbank, int framesNum, FbankDatas* /*out*/ pData);
-		std::vector<float> GetFrames(KnfOnlineFbank* knfOnlineFbank, int framesNum);
+		LIBRARY_API void GetFbank(KnfOnlineFbank* knfOnlineFbank, int currFrameIndex, FbankData* /*out*/ pData);
+		LIBRARY_API void GetFbanks(KnfOnlineFbank* knfOnlineFbank, int lastFrameIndex, FbankDatas* /*out*/ pData);
+		std::vector<float> GetFrames(KnfOnlineFbank* knfOnlineFbank, int lastFrameIndex);
 	}
 #ifdef __cplusplus
 }
