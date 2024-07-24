@@ -27,45 +27,57 @@ namespace KaldiNativeFbankSharp
                  debug_mel: debug_mel,
                  window_type: window_type
                  );
-            this._knfOnlineFbank = KaldiNativeFbank.GetOnlineFbank(_opts);
+            this._knfOnlineFbank = KaldiNativeFbank.GetOnlineFbank(this._opts);
         }
 
+        /// <summary>
+        /// Get one frame at a time
+        /// </summary>
+        /// <param name="samples"></param>
+        /// <returns></returns>
         public float[] GetFbank(float[] samples)
         {
             KaldiNativeFbank.AcceptWaveform(_knfOnlineFbank, _sample_rate, samples, samples.Length);
             int framesNum = KaldiNativeFbank.GetNumFramesReady(_knfOnlineFbank);
             int n = framesNum - _last_frame_index;
             float[] fbanks = new float[n * _num_bins];
-            for (int i = 0; i < n; i++)
+            for (int i = _last_frame_index; i < framesNum; i++)
             {
                 FbankData fbankData = new FbankData();
                 KaldiNativeFbank.GetFbank(_knfOnlineFbank, i, ref fbankData);
                 float[] _fbankData = new float[fbankData.data_length];
                 Marshal.Copy(fbankData.data, _fbankData, 0, fbankData.data_length);
-                Array.Copy(_fbankData, 0, fbanks, i * _num_bins, _fbankData.Length);
+                Array.Copy(_fbankData, 0, fbanks, (i - _last_frame_index) * _num_bins, _fbankData.Length);
                 fbankData.data = IntPtr.Zero;
                 _fbankData = null;
             }
             _last_frame_index += n;
             samples = null;
             return fbanks;
-        }
+        }      
 
-        public void InputFinished()
-        {
-            KaldiNativeFbank.InputFinished(_knfOnlineFbank);
-        }
-
+        /// <summary>
+        /// Get all current frames each time
+        /// Faster than GetFbank
+        /// </summary>
+        /// <param name="samples"></param>
+        /// <returns></returns>
         public float[] GetFbankIndoor(float[] samples)
         {
             KaldiNativeFbank.AcceptWaveform(_knfOnlineFbank, _sample_rate, samples, samples.Length);
             int framesNum = KaldiNativeFbank.GetNumFramesReady(_knfOnlineFbank);
             FbankDatas fbankDatas = new FbankDatas();
-            KaldiNativeFbank.GetFbanks(_knfOnlineFbank, framesNum, ref fbankDatas);
+            KaldiNativeFbank.GetFbanks(_knfOnlineFbank, _last_frame_index, ref fbankDatas);
             float[] _fbankDatas = new float[fbankDatas.data_length];
             Marshal.Copy(fbankDatas.data, _fbankDatas, 0, fbankDatas.data_length);
+            _last_frame_index = framesNum - 1;
             samples = null;
             return _fbankDatas;
+        }
+
+        public void InputFinished()
+        {
+            KaldiNativeFbank.InputFinished(_knfOnlineFbank);
         }
 
         protected override void Dispose(bool disposing)

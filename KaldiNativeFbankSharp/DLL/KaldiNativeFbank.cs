@@ -1,12 +1,7 @@
 ﻿// See https://github.com/manyeyes for more information
 // Copyright (c)  2023 by manyeyes
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Runtime.InteropServices;
 using KaldiNativeFbankSharp.Struct;
+using System.Runtime.InteropServices;
 
 namespace KaldiNativeFbankSharp.DLL
 {
@@ -30,10 +25,10 @@ namespace KaldiNativeFbankSharp.DLL
         internal static extern int GetNumFramesReady(KnfOnlineFbank knfOnlineFbank);
 
         [DllImport(dllName, EntryPoint = "GetFbank", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void GetFbank(KnfOnlineFbank knfOnlineFbank, int frame, ref FbankData pData);
+        internal static extern void GetFbank(KnfOnlineFbank knfOnlineFbank, int currFrameIndex, ref FbankData pData);
 
         [DllImport(dllName, EntryPoint = "GetFbanks", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void GetFbanks(KnfOnlineFbank knfOnlineFbank, int framesNum, ref FbankDatas fbankDatas);
+        internal static extern void GetFbanks(KnfOnlineFbank knfOnlineFbank, int lastFrameIndex, ref FbankDatas fbankDatas);
 
     }
 }
