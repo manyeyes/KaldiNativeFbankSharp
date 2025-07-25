@@ -16,7 +16,7 @@ namespace KaldiNativeFbankSharp.Struct
         public int data_length;
     };
 
-    internal struct KnfOnlineFbank
+    internal struct KnfOnlineFeature
     {
         public IntPtr impl;
     };

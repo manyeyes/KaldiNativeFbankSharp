@@ -18,9 +18,9 @@ namespace KaldiNativeFbankSharp
                 {
                     _opts = IntPtr.Zero;
                 }
-                if (_knfOnlineFbank.impl != IntPtr.Zero)
+                if (_knfOnlineFeature.impl != IntPtr.Zero)
                 {
-                    _knfOnlineFbank.impl = IntPtr.Zero;
+                    _knfOnlineFeature.impl = IntPtr.Zero;
                 }
                 this._disposed = true;
             }
@@ -31,7 +31,7 @@ namespace KaldiNativeFbankSharp
             Dispose(this._disposed);
         }
         internal IntPtr _opts = IntPtr.Zero;
-        internal KnfOnlineFbank _knfOnlineFbank;
+        internal KnfOnlineFeature _knfOnlineFeature;
         internal bool _disposed = false;
     }
 }
