@@ -54,7 +54,7 @@ extern "C" {
 			int32_t num_ceps = 13;// Number of cepstra in MFCC computation (including C0)		
 			std::string window_type = "povey";  // e.g. Hamming window
 			std::string feature_type = "fbank";  // e.g. fbank, whisper, mfcc
-			//
+			// Standby parameters
 			float low_freq = 20;
 			float high_freq = 0;
 			float vtln_low = 100;
