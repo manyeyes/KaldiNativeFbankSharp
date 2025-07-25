@@ -1,5 +1,7 @@
 /**
- * Copyright (c)  2022  Xiaomi Corporation (authors: Fangjun Kuang)
+ * Copyright 2009-2011  Karel Vesely;  Petr Motlicek;  Saarland University
+ *           2014-2016  Johns Hopkins University (author: Daniel Povey)
+ * Copyright 2024       Xiaomi Corporation (authors: Fangjun Kuang)
  *
  * See LICENSE for clarification regarding multiple authors
  *
@@ -16,12 +18,14 @@
  * limitations under the License.
  */
 
-// This file is copied/modified from kaldi/src/feat/feature-fbank.h
+// This file is copied/modified from kaldi/src/feat/feature-mfcc.h
 
-#ifndef KALDI_NATIVE_FBANK_CSRC_FEATURE_FBANK_H_
-#define KALDI_NATIVE_FBANK_CSRC_FEATURE_FBANK_H_
+#ifndef KALDI_NATIVE_FBANK_CSRC_FEATURE_MFCC_H_
+#define KALDI_NATIVE_FBANK_CSRC_FEATURE_MFCC_H_
 
+#include <cstdint>
 #include <map>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -31,64 +35,65 @@
 
 namespace knf {
 
-struct FbankOptions {
+/// MfccOptions contains basic options for computing MFCC features.
+// (this class is copied from kaldi)
+struct MfccOptions {
   FrameExtractionOptions frame_opts;
   MelBanksOptions mel_opts;
-  // append an extra dimension with energy to the filter banks
-  bool use_energy = false;
-  float energy_floor = 0.0f;  // active iff use_energy==true
 
-  // If true, compute log_energy before preemphasis and windowing
-  // If false, compute log_energy after preemphasis ans windowing
-  bool raw_energy = true;  // active iff use_energy==true
+  // Number of cepstra in MFCC computation (including C0)
+  int32_t num_ceps = 13;
 
-  // If true, put energy last (if using energy)
-  // If false, put energy first
-  bool htk_compat = false;  // active iff use_energy==true
+  // Use energy (not C0) in MFCC computation
+  bool use_energy = true;
 
-  // if true (default), produce log-filterbank, else linear
-  bool use_log_fbank = true;
+  // Floor on energy (absolute, not relative) in MFCC
+  // computation. Only makes a difference if use_energy=true;
+  // only necessary if dither=0.0.
+  // Suggested values: 0.1 or 1.0
+  float energy_floor = 0.0;
 
-  // if true (default), use power in filterbank
-  // analysis, else magnitude.
-  bool use_power = true;
+  // If true, compute energy before preemphasis and windowing
+  bool raw_energy = true;
 
-  std::string feature_type = "fbank";  // e.g. fbank, whisper, mfcc
+  // Constant that controls scaling of MFCCs
+  float cepstral_lifter = 22.0;
 
-  FbankOptions() { mel_opts.num_bins = 23; }
+  // If true, put energy or C0 last and use a factor of
+  // sqrt(2) on C0.
+  // Warning: not sufficient to get HTK compatible features
+  // (need to change other parameters)
+  bool htk_compat = false;
+
+  MfccOptions() { mel_opts.num_bins = 23; }
 
   std::string ToString() const {
     std::ostringstream os;
-    os << "frame_opts: \n";
-    os << frame_opts << "\n";
-    os << "\n";
+    os << "MfccOptions(";
+    os << "frame_opts=" << frame_opts.ToString() << ", ";
+    os << "mel_opts=" << mel_opts.ToString() << ", ";
 
-    os << "mel_opts: \n";
-    os << mel_opts << "\n";
+    os << "num_ceps=" << num_ceps << ", ";
+    os << "use_energy=" << (use_energy ? "True" : "False") << ", ";
+    os << "energy_floor=" << energy_floor << ", ";
+    os << "raw_energy=" << (raw_energy ? "True" : "False") << ", ";
+    os << "cepstral_lifter=" << cepstral_lifter << ", ";
+    os << "htk_compat=" << (htk_compat ? "True" : "False") << ")";
 
-    os << "use_energy: " << use_energy << "\n";
-    os << "energy_floor: " << energy_floor << "\n";
-    os << "raw_energy: " << raw_energy << "\n";
-    os << "htk_compat: " << htk_compat << "\n";
-    os << "use_log_fbank: " << use_log_fbank << "\n";
-    os << "use_power: " << use_power << "\n";
-    os << "feature_type: " << feature_type << "\n";
     return os.str();
   }
 };
 
-std::ostream &operator<<(std::ostream &os, const FbankOptions &opts);
+std::ostream &operator<<(std::ostream &os, const MfccOptions &opts);
 
-class FbankComputer {
+class MfccComputer {
  public:
-  using Options = FbankOptions;
+  using Options = MfccOptions;
 
-  explicit FbankComputer(const FbankOptions &opts);
-  ~FbankComputer();
+  explicit MfccComputer(const MfccOptions &opts);
+  ~MfccComputer();
 
-  int32_t Dim() const {
-    return opts_.mel_opts.num_bins + (opts_.use_energy ? 1 : 0);
-  }
+  int32_t Dim() const { return opts_.num_ceps; }
 
   // if true, compute log_energy_pre_window but after dithering and dc removal
   bool NeedRawLogEnergy() const { return opts_.use_energy && opts_.raw_energy; }
@@ -97,7 +102,7 @@ class FbankComputer {
     return opts_.frame_opts;
   }
 
-  const FbankOptions &GetOptions() const { return opts_; }
+  const MfccOptions &GetOptions() const { return opts_; }
 
   /**
      Function that computes one frame of features from
@@ -126,12 +131,21 @@ class FbankComputer {
  private:
   const MelBanks *GetMelBanks(float vtln_warp);
 
-  FbankOptions opts_;
+  MfccOptions opts_;
   float log_energy_floor_;
   std::map<float, MelBanks *> mel_banks_;  // float is VTLN coefficient.
   Rfft rfft_;
+
+  // temp buffer of size num_mel_bins = opts.mel_opts.num_bins
+  std::vector<float> mel_energies_;
+
+  // opts_.num_ceps
+  std::vector<float> lifter_coeffs_;
+
+  // [num_ceps][num_mel_bins]
+  std::vector<float> dct_matrix_;
 };
 
 }  // namespace knf
 
-#endif  // KALDI_NATIVE_FBANK_CSRC_FEATURE_FBANK_H_
+#endif  // KALDI_NATIVE_FBANK_CSRC_FEATURE_MFCC_H_

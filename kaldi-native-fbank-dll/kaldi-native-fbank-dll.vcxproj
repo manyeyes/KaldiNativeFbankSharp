@@ -156,14 +156,17 @@
   <ItemGroup>
     <ClInclude Include="feature-fbank.h" />
     <ClInclude Include="feature-functions.h" />
+    <ClInclude Include="feature-mfcc.h" />
     <ClInclude Include="feature-window.h" />
     <ClInclude Include="framework.h" />
+    <ClInclude Include="kaldi-math.h" />
     <ClInclude Include="KNFWrapper.h" />
     <ClInclude Include="log.h" />
     <ClInclude Include="mel-computations.h" />
     <ClInclude Include="online-feature.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="rfft.h" />
+    <ClInclude Include="whisper-feature.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
@@ -171,8 +174,10 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="feature-functions.cc" />
+    <ClCompile Include="feature-mfcc.cc" />
     <ClCompile Include="feature-window.cc" />
     <ClCompile Include="fftsg.c" />
+    <ClCompile Include="kaldi-math.cc" />
     <ClCompile Include="KNFWrapper.cpp" />
     <ClCompile Include="log.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
@@ -188,6 +193,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="rfft.cc" />
+    <ClCompile Include="whisper-feature.cc" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="CMakeLists.txt" />
