@@ -45,6 +45,15 @@
     <ClInclude Include="KNFWrapper.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="feature-mfcc.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="kaldi-math.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="whisper-feature.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -78,6 +87,15 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="KNFWrapper.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="feature-mfcc.cc">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="kaldi-math.cc">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="whisper-feature.cc">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
