@@ -54,6 +54,8 @@ class WhisperFeatureComputer {
   void Compute(float /*signal_raw_log_energy*/, float /*vtln_warp*/,
                std::vector<float> *signal_frame, float *feature);
 
+  void Convert(const float* features, int rows, int cols, float* output);
+
   // if true, compute log_energy_pre_window but after dithering and dc removal
   bool NeedRawLogEnergy() const { return false; }
 

@@ -163,9 +163,46 @@ void WhisperFeatureComputer::Compute(float /*signal_raw_log_energy*/,
     float im = fft_out[2 * i + 1];
     power[i] = re * re + im * im;
   }
-
   // feature is pre-allocated by the user
   mel_banks_->Compute(power.data(), feature);
+  int cols = mel_banks_->NumBins();
+  int rows = 1;
+  try {
+      Convert(feature, rows, cols, feature);
+  }
+  catch (const std::invalid_argument& e) {
+      KNF_LOG(FATAL) << "Feature conversion failed: " << e.what();
+  }
+}
+/**
+ * log mel feature transformation
+ */
+void WhisperFeatureComputer::Convert(const float* features, int rows, int cols, float* output) {
+    if (features == nullptr || output == nullptr) {
+        throw std::invalid_argument("输入或输出数组不能为nullptr");
+    }
+    if (rows <= 0 || cols <= 0) {
+        throw std::invalid_argument("行数和列数必须为正数");
+    }
+    const int total = rows * cols; 
+    // 1.calculate log10 (clip (features, 1e-10)) while tracking the maximum value
+    float maxVal = -1e20f;
+    for (int i = 0; i < total; ++i) {
+        const float val = max(features[i], 1e-10f);
+        output[i] = std::log10f(val);
+        if (output[i] > maxVal) {
+            maxVal = output[i];
+        }
+    }
+    // 2.application threshold (max (log_stec, maxVal -8.0))
+    const float threshold = maxVal - 8.0f;
+    for (int i = 0; i < total; ++i) {
+        output[i] = max(output[i], threshold);
+    }
+    // 3.normalization (log_stec+4.0)/4.0
+    for (int i = 0; i < total; ++i) {
+        output[i] = (output[i] + 4.0f) * 0.25f;
+    }
 }
 
 }  // namespace knf
